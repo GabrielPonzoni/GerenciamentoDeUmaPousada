@@ -69,36 +69,39 @@ def realiza_reserva():
             main()
 
 def consulta_reserva():
+    print('Consultando reserva:')
+    input()
     pass
 
 def main():
-    clear_screen()
-    menu_principal()
-    user_input = validador_input_numeros()
-
-    match user_input:
-        case '1':
-            clear_screen()
-            consulta_disponibilidade()
-            main()                      # usando aqui recursividade
-        case '2':
-            clear_screen()
-            consulta_reserva()
-        case '3':
-            clear_screen()
-            realiza_reserva()
-        case '4':
-            pass
-        case '5':
-            pass
-        case '6':
-            pass
-        case '7':
-            pass
-        case '8':
-            pass
-        case '9':
-            print('Até logo!')
-        case _:
-            print('Opção inexistente. Saindo do programa...')
+    while True:
+        clear_screen()
+        menu_principal()
+        user_input = validador_input_numeros()
+        match user_input:
+            case '1':
+                clear_screen()
+                consulta_disponibilidade()
+            case '2':
+                clear_screen()
+                consulta_reserva()
+            case '3':
+                clear_screen()
+                realiza_reserva()
+            case '4':
+                pass
+            case '5':
+                pass
+            case '6':
+                pass
+            case '7':
+                pass
+            case '8':
+                pass
+            case '9':
+                clear_screen()
+                print('Até logo!')
+                break
+            case _:
+                print('Opção inexistente. Tente novamente...')
 main()
