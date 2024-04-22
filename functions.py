@@ -6,7 +6,7 @@ def clear_screen() -> None:
 
 def validador_input_s_n() -> str:
     '''
-    Método que valida as entradas do usuário, aceitando apenas 's','S' ou 'n','N'.
+    Função que valida as entradas do usuário, aceitando apenas 's','S' ou 'n','N'.
 
     Returns:
     str: A entrada do usuário verificada.
@@ -28,7 +28,7 @@ def validador_input_s_n() -> str:
 
 def validador_input_numeros() -> str:
     '''
-    Método que valida as entradas do usuário, aceitando apenas números inteiros positivos.
+    Função que valida as entradas do usuário, aceitando apenas números inteiros positivos.
 
     Returns:
     str: O número verificado informado pelo usuário.
@@ -54,7 +54,7 @@ def validador_input_numeros() -> str:
 
 def converte_bool_em_str(x: bool) -> str:
     '''
-    Metodo conversor de booleanos em algo legível para o usuário
+    Função conversor de booleanos em algo legível para o usuário
     
     Parameters: 
     x (bool): Valor boleano a ser traduzido
