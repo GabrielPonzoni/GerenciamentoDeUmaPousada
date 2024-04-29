@@ -3,6 +3,9 @@ import os
 
 def clear_screen() -> None:
     os.system('cls')
+    
+def press_enter() -> None:
+    input('(Pressione Enter)')
 
 def validador_input_s_n() -> str:
     '''
