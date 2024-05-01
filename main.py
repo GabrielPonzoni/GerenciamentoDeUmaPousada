@@ -48,9 +48,9 @@ def carrega_reservas(pousada:Pousada, lista_das_linhas:list) -> None:
                 break
             
     # verificando abaixo de que os quartos foram corretamente importados (deletar quando não precisar mais)
-    for reserva in pousada.reservas:
+    '''for reserva in pousada.reservas:
         print(f'{reserva.quarto.numero}')
-    press_enter()
+    press_enter()'''
     
 def carrega_produtos(pousada:Pousada, lista_das_linhas:list) -> None:
     pass

@@ -80,25 +80,25 @@ class Pousada:
         print('S: 101, 102, 103, 104, 105,\nM: 201, 202, 203, 204\nP: 301, 302, 303')
         input_de_quarto: str = validador_input_numeros()
         
-        self.verifica_disponibilidade(input_de_dia, input_de_quarto)
+        self.verifica_disponibilidade(input_de_dia, int(input_de_quarto))
         press_enter()
         
-    def verifica_disponibilidade(self, dia:str, quarto:str)-> bool:
+    def verifica_disponibilidade(self, dia:str, quarto:int) -> bool:
     # procura o quarto desejado na lista de reservas e, caso encontrado, verifica se não há colisão de dias com outras reservas;
     # caso o quarto desejado não for encontrado na lista de reservas, significa que está livre.
         
         existe_na_lista_de_reservas: bool = False
         
-        for reserva in self.reservas:      # dia_inicio[0], dia_fim[1], cliente[2], quarto[3], status[4]
+        for reserva in self.reservas:      # Reserva(dia_inicio, dia_fim, cliente, quarto, status)
             
-            if quarto == reserva[3]:
-                if int(reserva[0]) <= int(dia) <= int(reserva[1]):      
-                    print(f'O quarto {quarto} já está reservado (Reserva existente entre dias {reserva[0]} e {reserva[1]}).')
+            if int(quarto) == reserva.quarto.numero:
+                if int(reserva.dia_inicio) <= int(dia) <= int(reserva.dia_fim):      
+                    print(f'O quarto {quarto} já está reservado (Reserva existente entre dias {reserva.dia_inicio} e {reserva.dia_fim}).')
                     existe_na_lista_de_reservas = True
                     #break
                     return False
                 else:
-                    print(f'(INFORMAÇÃO: o dia {dia} no quarto {quarto} está vago até o dia {self.verifica_disponibilidade_ate_quando(dia,reserva[0])}.)')
+                    print(f'(INFORMAÇÃO: o dia {dia} no quarto {quarto} está vago até o dia {self.verifica_disponibilidade_ate_quando(dia,reserva.dia_inicio,reserva.dia_fim)}.)')
                     existe_na_lista_de_reservas = True
                     #break
                     return True
@@ -109,15 +109,23 @@ class Pousada:
             print(f'O dia {dia} no quarto {quarto} está definitivamente vago.')
             return True
             
-    def verifica_disponibilidade_ate_quando(self, dia_de_entrada:str, dia_ja_reservado:str) -> str:
+    def verifica_disponibilidade_ate_quando(self, dia_de_entrada:str, dia_inicio_ja_reservado:str, dia_fim_ja_reservado:str) -> str:
     # informa o dia (str) a partir do qual uma reserva existente conflitará com o dia escolhido pelo usuário;
     # útil para o usuário saber quantos dias reserváveis estão disponíveis;
-    # ex: escolhe dia 5; há reserva entre dia 10 e 12; retorna dia 10
-        for i in range(int(dia_de_entrada), 31):
-            if i < int(dia_ja_reservado):
-                continue
-            else:
-                return str(i)
+    # ex: escolhe dia 5; há reserva entre dia 10 e 12; retorna dia 10;
+    # este método ainda pode ser aprimorado para casos com mais reservas no mês. mas aumenta muito complexidade;
+    
+        # caso 1: dia de entrada antes do período reservado
+        if int(dia_de_entrada) < int(dia_inicio_ja_reservado):
+            for i in range(int(dia_de_entrada), 30):
+                if i < int(dia_inicio_ja_reservado):
+                    continue
+                else:
+                    return str(i)
+                             
+        # caso 2: dia de entrada depois do período reservado
+        elif int(dia_de_entrada) > int(dia_fim_ja_reservado):
+            return str(30)
             
     def consulta_reserva(self) -> None:
         print('\nEscolha uma das opções de filtro para pesquisa:')
@@ -134,10 +142,10 @@ class Pousada:
                 dia_informado: int = int(input_do_usuario)
                 existe_dia_informado: bool = False
                 
-                for reserva in self.reservas:   # dia_inicio[0], dia_fim[1], cliente[2], quarto[3], status[4]
-                    if int(reserva[0]) <= dia_informado <= int(reserva[1]) and (reserva[4].lower() == 'a'):
+                for reserva in self.reservas:           # Reserva(dia_inicio, dia_fim, cliente, quarto, status)
+                    if int(reserva.dia_inicio) <= dia_informado <= int(reserva.dia_fim) and (reserva.status.lower() == 'a'):
                         existe_dia_informado = True
-                        print(f'RESERVADO: Cliente {reserva[2]} entre dias {reserva[0]} e {reserva[1]} no quarto {reserva[3]}')
+                        print(f'RESERVADO: Cliente {reserva.cliente} entre dias {reserva.dia_inicio} e {reserva.dia_fim} no quarto {reserva.quarto.numero}')
                 if existe_dia_informado == False:
                     print(f'Não há nenhuma reserva em nenhum quarto no dia {dia_informado}.')
                 press_enter()
@@ -150,9 +158,9 @@ class Pousada:
                 existe_cliente_informado: bool = False
                 
                 for reserva in self.reservas:
-                    if cliente_informado.lower() == reserva[2].lower():
+                    if cliente_informado.lower() == reserva.cliente.lower():
                         existe_cliente_informado = True
-                        print(f'RESERVADO: Cliente {reserva[2]} entre dias {reserva[0]} e {reserva[1]} no quarto {reserva[3]}')
+                        print(f'RESERVADO: Cliente {reserva.cliente} entre dias {reserva.dia_inicio} e {reserva.dia_fim} no quarto {reserva.quarto.numero}')
                 if existe_cliente_informado == False:
                     print(f'Não há nenhum(a) cliente de nome {cliente_informado} com alguma reserva.')
                 press_enter()
@@ -161,13 +169,13 @@ class Pousada:
                 print('Digite o número do quarto:')
                 input_do_usuario: str = validador_input_numeros()
                 
-                quarto_informado: str = input_do_usuario
+                quarto_informado = int(input_do_usuario)
                 existe_quarto_informado: bool = False
                 
                 for reserva in self.reservas:
-                    if quarto_informado == reserva[3]:
+                    if quarto_informado == reserva.quarto.numero:
                         existe_quarto_informado = True
-                        print(f'RESERVADO: O quarto {reserva[3]} está reservado para cliente {reserva[2]} entre dia {reserva[0]} e {reserva[1]}.')
+                        print(f'RESERVADO: O quarto {reserva.quarto.numero} está reservado para cliente {reserva.cliente} entre dia {reserva.dia_inicio} e {reserva.dia_fim}.')
                 if existe_quarto_informado == False:
                     print(f'O quarto {quarto_informado} não possui nenhuma reserva.')
                 press_enter()
@@ -177,18 +185,43 @@ class Pousada:
         dia_de_entrada_informado: str = validador_input_numeros()
         
         print('Informe o dia de saída:')
-        die_de_saida_informado: str = validador_input_numeros()
+        dia_de_saida_informado: str = validador_input_numeros()
         
         print('Informe o quarto desejado:')
         quarto_informado: str = validador_input_numeros()
         
-        if self.verifica_disponibilidade(dia_de_entrada_informado, quarto_informado) == True:
+        if (self.verifica_disponibilidade(dia_de_entrada_informado, quarto_informado) == True) and (
+            (self.verifica_disponibilidade(dia_de_saida_informado, quarto_informado) == True)):
+            
             print('Informe seu nome:')
             nome_informado: str = input()
+            
+            # verifica se nome informado já possui alguma reserva
+            for reserva in self.reservas:
+                if nome_informado.lower() == reserva.cliente.lower():
+                    print(f'{nome_informado} já possui uma reserva na pousada.')
+                    print('Reserva não realizada!')
+                    break
+            
+            self.reservas.append(Reserva(int(dia_de_entrada_informado), int(dia_de_saida_informado), nome_informado, int(quarto_informado), 'A'))
+            
+            # localiza o quarto da reserva recém realizada (último item da lista que recebeu append);
+            # é a mesma ideia do que foi feito no método carrega_reservas() na main()
+            for quarto in self.quartos:
+                if (int(quarto.numero) == int(self.reservas[-1].quarto)):
+                    self.reservas[-1].quarto = quarto 
+                    break
+                
+            print('Sua reserva foi realizada com êxito!')
+            print('Dados da sua reserva:')
+            print(f'Cliente: {self.reservas[-1].cliente}')
+            print(f'Check-in: {self.reservas[-1].dia_inicio}')
+            print(f'Check-out: {self.reservas[-1].dia_fim}')
+            print(f'Quarto: {self.reservas[-1].quarto.numero}')
+            press_enter()            
         else:
-            print('Retornando ao menu principal...')
+            print('Datas informadas colidem com reserva existente.')
             press_enter()
             return
         
-        for reserva in self.reservas:
-            pass
+        
