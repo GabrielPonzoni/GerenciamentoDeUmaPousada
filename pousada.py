@@ -113,6 +113,7 @@ class Pousada:
     # informa o dia (str) a partir do qual uma reserva existente conflitará com o dia escolhido pelo usuário;
     # útil para o usuário saber quantos dias reserváveis estão disponíveis;
     # ex: escolhe dia 5; há reserva entre dia 10 e 12; retorna dia 10;
+    # IMPORTANTE:
     # este método ainda pode ser aprimorado para casos com mais reservas no mês. mas aumenta muito complexidade;
     
         # caso 1: dia de entrada antes do período reservado
@@ -158,11 +159,11 @@ class Pousada:
                 existe_cliente_informado: bool = False
                 
                 for reserva in self.reservas:
-                    if cliente_informado.lower() == reserva.cliente.lower():
+                    if cliente_informado.lower() == reserva.cliente.lower() and (reserva.status.lower() == 'a'):
                         existe_cliente_informado = True
                         print(f'RESERVADO: Cliente {reserva.cliente} entre dias {reserva.dia_inicio} e {reserva.dia_fim} no quarto {reserva.quarto.numero}')
                 if existe_cliente_informado == False:
-                    print(f'Não há nenhum(a) cliente de nome {cliente_informado} com alguma reserva.')
+                    print(f'Não há nenhum(a) cliente de nome {cliente_informado} com reserva ATIVA.')
                 press_enter()
                 
             case '3':
@@ -173,7 +174,7 @@ class Pousada:
                 existe_quarto_informado: bool = False
                 
                 for reserva in self.reservas:
-                    if quarto_informado == reserva.quarto.numero:
+                    if quarto_informado == reserva.quarto.numero and (reserva.status.lower() == 'a'):
                         existe_quarto_informado = True
                         print(f'RESERVADO: O quarto {reserva.quarto.numero} está reservado para cliente {reserva.cliente} entre dia {reserva.dia_inicio} e {reserva.dia_fim}.')
                 if existe_quarto_informado == False:
@@ -214,14 +215,100 @@ class Pousada:
                 
             print('Sua reserva foi realizada com êxito!')
             print('Dados da sua reserva:')
-            print(f'Cliente: {self.reservas[-1].cliente}')
-            print(f'Check-in: {self.reservas[-1].dia_inicio}')
-            print(f'Check-out: {self.reservas[-1].dia_fim}')
-            print(f'Quarto: {self.reservas[-1].quarto.numero}')
+            print(f'\tCliente: {self.reservas[-1].cliente}')
+            print(f'\tCheck-in: {self.reservas[-1].dia_inicio}')
+            print(f'\tCheck-out: {self.reservas[-1].dia_fim}')
+            print(f'\tQuarto: {self.reservas[-1].quarto.numero}')
             press_enter()            
         else:
             print('Datas informadas colidem com reserva existente.')
             press_enter()
             return
         
+    def cancela_reserva(self):
+        nome_informado = input('Informe o nome do cliente para cancelar sua reserva:\n')
+        for reserva in self.reservas:
+            if (reserva.cliente == nome_informado):
+                reserva.status = 'C'
+                print(f'A reserva de {nome_informado} foi cancelada com êxito.')
+                print('INFORMAÇÃO: dados da reserva cancelada:')
+                print(f'\tDia de entrada: {reserva.dia_inicio}; Dia de saída: {reserva.dia_fim}; Quarto: {reserva.quarto.numero}')
+                press_enter()
+                return
+        print(f'Não há nenhum cliente com nome {nome_informado}. Voltando...')
+        press_enter()
         
+    def realiza_check_in(self):
+        nome_informado = input('Informe o nome do(a) cliente:\n')
+        for reserva in self.reservas:
+            if (reserva.cliente.lower() == nome_informado.lower()) and (reserva.status.lower() == 'a'):
+                reserva.status = 'I'
+                print(f'Cliente {nome_informado} fez check-in com êxito.')
+                print('INFORMAÇÃO:')
+                print(f'\tDia de entrada: {reserva.dia_inicio}')
+                print(f'\tDia de saída: {reserva.dia_fim}')
+                print(f'\tQuarto: {reserva.quarto.numero}')
+                print(f'\tNúmero de dias de hospedagem: {int(reserva.dia_fim) - int(reserva.dia_inicio)}')
+                print(f'\tValor das diárias a pagar: {(int(reserva.dia_fim) - int(reserva.dia_inicio)) * reserva.quarto.diaria}')
+                press_enter()
+                return
+        print(f'Não há nenhum cliente com nome {nome_informado}. Voltando...')
+        press_enter()
+        
+    def realiza_check_out(self):
+        nome_informado = input('Informe o nome do(a) cliente:\n')
+        for reserva in self.reservas:
+            if (reserva.cliente.lower() == nome_informado.lower()) and (reserva.status.lower() == 'i'):
+                reserva.status = 'O'
+                print(f'Cliente {nome_informado} faz check-out agora.')
+                print('INFORMAÇÃO:')
+                print(f'\tDia de entrada: {reserva.dia_inicio}')
+                print(f'\tDia de saída: {reserva.dia_fim}')
+                print(f'\tQuarto: {reserva.quarto.numero}')
+                print(f'\tNúmero de dias de hospedagem: {int(reserva.dia_fim) - int(reserva.dia_inicio)}')
+                print(f'\tValor das diárias a pagar: R$ {(int(reserva.dia_fim) - int(reserva.dia_inicio) + 1) * reserva.quarto.diaria}')
+                print(f'\tValor dos produtos consumidos: R$ {self.calcula_valor_produtos_consumidos(reserva)}')
+                print('---------------------------------')
+                print(f'\tValor total: {(int(reserva.dia_fim) - int(reserva.dia_inicio)) * reserva.quarto.diaria + self.calcula_valor_produtos_consumidos(reserva)}')
+                press_enter()
+                return
+                
+        print(f'Não há nenhum cliente de nome {nome_informado} hospedado nesse momento. Voltando...')
+        press_enter()
+        
+    def calcula_valor_produtos_consumidos(self, reserva_selecionada:Reserva) -> float:
+        # calcula o valor dos produtos consumidos
+        valor_produtos_consumidos: float = 0
+        for codigo_produto_consumido in reserva_selecionada.quarto.consumo:
+            for produto in self.produtos:
+                if int(codigo_produto_consumido) == int(produto.codigo):
+                    valor_produtos_consumidos += produto.preco
+        return valor_produtos_consumidos
+            
+                
+    def registra_consumo(self):
+        nome_informado = input('Informe o nome do(a) cliente:\n')
+        for reserva in self.reservas:
+            if (reserva.cliente.lower() == nome_informado.lower()) and (reserva.status.lower() == 'i'):
+                print(f'LISTA DE PRODUTOS DISPONÍVEIS NO QUARTO de {nome_informado}:')
+                print('=============================================================')
+
+                for produto in self.produtos:
+                    print(f'{produto.codigo}\t{produto.nome}\t\t{produto.preco}')
+                    
+                print('Escolha um produto digitando o seu código numérico:')
+                input_do_usuario = validador_input_numeros()
+                
+                # registra o consumo na lista de consumo do respectivo quarto.
+                # à lista de consumo do quarto será adicionado um objeto Produto.
+                # ATENÇÃO: no arquivo 'quarto.txt', o consumo será traduzido apenas no código do produto
+                for produto in self.produtos:
+                    if int(input_do_usuario) == produto.codigo:
+                        reserva.quarto.consumo.append(str(input_do_usuario))
+                
+                print(f'Produto de código \"{reserva.quarto.consumo[-1]}\" registrado com êxito.')
+                press_enter()
+                return
+                
+        print(f'Não há nenhum cliente de nome {nome_informado} hospedado nesse momento. Voltando...')
+        press_enter()
