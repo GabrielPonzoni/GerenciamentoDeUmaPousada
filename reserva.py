@@ -8,6 +8,7 @@ class Reserva:
     # (O) = quarto e dia vago, pode reservar aqui
     
     def __init__(self, dia_inicio:int, dia_fim:int, cliente:str, quarto:Quarto, status:str) -> None:
+        # o parâmetro 'quarto' é mesmo do tipo Quarto (classe)?
         
         self.__dia_inicio = dia_inicio
         self.__dia_fim = dia_fim
