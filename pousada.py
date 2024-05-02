@@ -1,5 +1,4 @@
 from functions import *
-from quarto import Quarto   # remover esta linha?
 from reserva import Reserva
 
 class Pousada:
@@ -65,7 +64,6 @@ class Pousada:
         print('7.  Registrar consumo')
         print('8.  Salvar alterações')
         print('9.  Sair')
-        print('10. teste')
         
     def consulta_disponibilidade(self) -> None:
         print('\nPara procurar por quartos vagos, é preciso informar o dia de início e o quarto desejado.')
@@ -96,7 +94,7 @@ class Pousada:
                     print(f'(INFORMAÇÃO: o dia {dia} no quarto {quarto} está vago até o dia {self.verifica_disponibilidade_ate_quando(dia,reserva.dia_inicio,reserva.dia_fim)}.)')
                     existe_na_lista_de_reservas = True
                     return True
-            # seria bom validar input do usuário para o quarto
+                                        # seria bom validar input do usuário para o quarto
         
         if existe_na_lista_de_reservas == False:
             # somente no caso de não encontrar o quarto na lista de reservas:
@@ -266,7 +264,7 @@ class Pousada:
                 
                 print(f'\tValor dos produtos consumidos: R$ {self.calcula_valor_produtos_consumidos(reserva)}')
                 print('---------------------------------')
-                print(f'\tValor total: R$ {(int(reserva.dia_fim) - int(reserva.dia_inicio)) * reserva.quarto.diaria + self.calcula_valor_produtos_consumidos(reserva)}')
+                print(f'\tValor total: R$ {(int(reserva.dia_fim) - int(reserva.dia_inicio) + 1) * reserva.quarto.diaria + self.calcula_valor_produtos_consumidos(reserva)}')
                 
                 reserva.status = 'O'        # status da reserva para check-out
                 reserva.quarto.consumo = [] # IMPORTANTE: limpar o consumo do quarto utilizado
@@ -357,8 +355,20 @@ class Pousada:
             
             lista_serializada.append(lista_auxiliar)
         return lista_serializada
+    
+    def limpar_reservas_c_o(self):
+        reservas_a_deletar: list = []   # índices das reservas a deletar
         
-    def salvar_alteracoes(self):
-        print(self.serializar_lista_de_quartos())
-        print(self.serializar_lista_de_reservas())
-        press_enter()
+        for reserva in self.reservas:
+            if (reserva.status.lower() == 'c') or (reserva.status.lower() == 'o'):
+                reservas_a_deletar.append(self.reservas.index(reserva))
+                
+        reservas_a_deletar.reverse()
+        
+        # limpa reservas do índice maior para o índice menor; isto é necessário pois
+        # vai haver mudança de índice durante o laço. começando do índice maior, isso é contornado;
+        
+        for index in reservas_a_deletar:
+            print(index)
+            self.reservas.pop(index)
+        print(self.reservas)

@@ -1,3 +1,6 @@
 dia_inicio,dia_fim,cliente,quarto,status
 10,15,Admin,101,A
 1,7,Rico,303,A
+1,2,ARW,204,C
+23,25,Filomena,302,A
+1,4,João,201,O

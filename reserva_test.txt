@@ -1,3 +1,0 @@
-dia_inicio,dia_fim,cliente,quarto,status
-10,15,Admin,101,A
-1,7,Rico,303,A

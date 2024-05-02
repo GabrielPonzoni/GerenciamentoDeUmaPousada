@@ -1,5 +1,4 @@
 from functions import *
-from random import randrange
 from pousada import Pousada
 from quarto import Quarto
 from produto import Produto
@@ -16,27 +15,34 @@ def deserializar(nome_de_arquivo:str) -> list:
     return lista_das_linhas
 
 def serializar(pousada:Pousada) -> None:   
-    # Acessa um arquivo e (sobre)escreve o seu conteúdo com o conteúdo de uma lista. Reaproveita a primeira linha (cabeçalho)
-    
-    # ATENÇÃO: ARQUIVO RESULTANTE POSSUI LINHA EM BRANCO NO FINAL
-    
+    # Acessa arquivos da pousada informada;
+    # (sobre)escreve o conteúdo dos arquivos com o conteúdo atualizado
+    # das listas da pousada. Reaproveita a primeira linha (cabeçalho);
+    # Escreve separadamente a última linha para não sobrar linha em branco
+        
     # lista de reservas:
     with open('reserva.txt', 'r', encoding='utf-8') as arquivo:
         primeira_linha = arquivo.readline()
 
-    with open('reserva_test.txt', 'w', encoding='utf-8', newline='') as arquivo:  # newline='' impede que haja linas em branco (chatgpt)
-        arquivo.write(primeira_linha)
-        writer = csv.writer(arquivo)
-        writer.writerows(pousada.serializar_lista_de_reservas())
+    with open('reserva.txt', 'w', encoding='utf-8', newline='') as arquivo:  # newline='' impede que haja linas em branco (chatgpt)
+        arquivo.write(primeira_linha)     # escreve cabeçalho
+        
+        lista_de_listas: list = pousada.serializar_lista_de_reservas()
+        for i in range(len(lista_de_listas) - 1):                              # índice não-inclusivo; sugestão do chatgpt: lista_de_linhas[:-1]
+            arquivo.write(','.join(lista_de_listas[i]) + '\n')                 # escreve cada linhas com \n ao final, exceto a última
+        arquivo.write(','.join(lista_de_listas[len(lista_de_listas) - 1]))     # escreve a última linha sem \n; índice inclusivo; sugestão do chatgpt: lista_de_linhas[-1]
         
     # lista de quartos:
     with open('quarto.txt', 'r', encoding='utf-8') as arquivo:
         primeira_linha = arquivo.readline()
 
-    with open('quarto_test.txt', 'w', encoding='utf-8', newline='') as arquivo:
-        arquivo.write(primeira_linha)
-        writer = csv.writer(arquivo)
-        writer.writerows(pousada.serializar_lista_de_quartos())
+    with open('quarto.txt', 'w', encoding='utf-8', newline='') as arquivo:
+        arquivo.write(primeira_linha) 
+        
+        lista_de_listas: list = pousada.serializar_lista_de_quartos()
+        for i in range(len(lista_de_listas) - 1):                   
+            arquivo.write(','.join(lista_de_listas[i]) + '\n')      
+        arquivo.write(','.join(lista_de_listas[len(lista_de_listas) - 1]))
 
 def carrega_pousada(pousada:Pousada, lista_das_linhas:list) -> None:
     
@@ -47,7 +53,6 @@ def carrega_pousada(pousada:Pousada, lista_das_linhas:list) -> None:
         pousada.quartos = []
         pousada.reservas = []
         pousada.produtos = []
-     #   print(f'{pousada.nome}\t{pousada.contato}\t{pousada.quartos}\t{pousada.reservas}\t{pousada.produtos}\t')
 
 def carrega_quartos(pousada:Pousada, lista_das_linhas:list) -> None:
     for linha in lista_das_linhas:      # varre cada linha da lista de linhas; cada linha possui os atributos dum QUARTO
@@ -67,15 +72,6 @@ def carrega_quartos(pousada:Pousada, lista_das_linhas:list) -> None:
                 continue
             else:
                 pousada.quartos[i].consumo.append(lista_das_linhas[i][j])
-    
-    '''for quarto in pousada.quartos:
-        print(f'{quarto.consumo}')
-    press_enter()'''
-        
-    # verificando abaixo de que os quartos foram corretamente importados (deletar quando não precisar mais)
-    '''for quarto in pousada.quartos:
-        print(f'{quarto.numero} = {quarto}')
-    press_enter()'''
         
 def carrega_reservas(pousada:Pousada, lista_das_linhas:list) -> None:
     for linha in lista_das_linhas:      # varre cada linha da lista de linhas; cada linha possui os atributos duma RESERVA
@@ -89,20 +85,10 @@ def carrega_reservas(pousada:Pousada, lista_das_linhas:list) -> None:
             if (int(quarto.numero) == int(reserva.quarto)):
                 reserva.quarto = quarto     # atribui a reserva.quarto um objeto Quarto
                 break
-            
-    # verificando abaixo de que os quartos foram corretamente importados (deletar quando não precisar mais)
-    '''for reserva in pousada.reservas:
-        print(f'{reserva.quarto.numero}')
-    press_enter()'''
     
 def carrega_produtos(pousada:Pousada, lista_das_linhas:list) -> None:
     for linha in lista_das_linhas:
         pousada.produtos.append(Produto(int(linha[0]), linha[1], float(linha[2])))
-    
-    # teste:    
-    '''for produto in pousada.produtos:
-        print(f'{produto.codigo}, {produto.nome}, {produto.preco}')
-    press_enter()'''
 
 def main():
     minha_pousada = Pousada('','',[],[],[])
@@ -142,13 +128,16 @@ def main():
                 minha_pousada.registra_consumo()
             case '8':
                 clear_screen()
+                print('Salvando alterações...')
+                minha_pousada.limpar_reservas_c_o()
                 serializar(minha_pousada)
+                press_enter()
             case '9':
                 clear_screen()
+                print('Salvando alterações...')
+                serializar(minha_pousada)
                 print('Até logo!')
                 return True
-            case '10':
-                clear_screen()
             case _:
                 print('Opção inexistente. Tente novamente...')
 main()
