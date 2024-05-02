@@ -15,9 +15,33 @@ def deserializar(nome_de_arquivo:str) -> list:
         lista_das_linhas = list(csv.reader(arquivo))
     return lista_das_linhas
 
+def serializar(pousada:Pousada) -> None:   
+    # Acessa um arquivo e (sobre)escreve o seu conteúdo com o conteúdo de uma lista. Reaproveita a primeira linha (cabeçalho)
+    
+    # ATENÇÃO: ARQUIVO RESULTANTE POSSUI LINHA EM BRANCO NO FINAL
+    
+    # lista de reservas:
+    with open('reserva.txt', 'r', encoding='utf-8') as arquivo:
+        primeira_linha = arquivo.readline()
+
+    with open('reserva_test.txt', 'w', encoding='utf-8', newline='') as arquivo:  # newline='' impede que haja linas em branco (chatgpt)
+        arquivo.write(primeira_linha)
+        writer = csv.writer(arquivo)
+        writer.writerows(pousada.serializar_lista_de_reservas())
+        
+    # lista de quartos:
+    with open('quarto.txt', 'r', encoding='utf-8') as arquivo:
+        primeira_linha = arquivo.readline()
+
+    with open('quarto_test.txt', 'w', encoding='utf-8', newline='') as arquivo:
+        arquivo.write(primeira_linha)
+        writer = csv.writer(arquivo)
+        writer.writerows(pousada.serializar_lista_de_quartos())
+
 def carrega_pousada(pousada:Pousada, lista_das_linhas:list) -> None:
+    
     for i in range(len(lista_das_linhas)):
-        # só pode haver uma pousada; assim, não há risco de sobreescrever
+        # só pode haver uma pousada; assim, não há risco de sobreescrever; consulte arquivo pousada.txt
         pousada.nome = str(lista_das_linhas[i][0])
         pousada.contato = str(lista_das_linhas[i][1])
         pousada.quartos = []
@@ -93,6 +117,7 @@ def main():
         clear_screen()
         minha_pousada.mostra_menu_principal()
         user_input = validador_input_numeros()
+        
         match user_input:
             case '1':
                 clear_screen()
@@ -116,7 +141,8 @@ def main():
                 clear_screen()
                 minha_pousada.registra_consumo()
             case '8':
-                pass
+                clear_screen()
+                serializar(minha_pousada)
             case '9':
                 clear_screen()
                 print('Até logo!')

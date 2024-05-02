@@ -1,5 +1,5 @@
 from functions import *
-from quarto import Quarto
+from quarto import Quarto   # remover esta linha?
 from reserva import Reserva
 
 class Pousada:
@@ -11,9 +11,6 @@ class Pousada:
         self.__quartos = quartos
         self.__reservas = reservas
         self.__produtos = produtos
-        
-        self.__clientes: list = []
-        # precisa setter/getter? ou pode remover?
         
     @property
     def nome(self) -> str:
@@ -66,7 +63,7 @@ class Pousada:
         print('5.  Realizar check-in')
         print('6.  Realizar check-out')
         print('7.  Registrar consumo')
-        print('8.  Salvar')
+        print('8.  Salvar alterações')
         print('9.  Sair')
         print('10. teste')
         
@@ -89,18 +86,15 @@ class Pousada:
         
         existe_na_lista_de_reservas: bool = False
         
-        for reserva in self.reservas:      # Reserva(dia_inicio, dia_fim, cliente, quarto, status)
-            
-            if int(quarto) == reserva.quarto.numero:
+        for reserva in self.reservas:      # Reserva(dia_inicio, dia_fim, cliente, quarto, status)        
+            if int(quarto) == reserva.quarto.numero and (reserva.status.lower() == 'a' or reserva.status.lower() == 'i'):
                 if int(reserva.dia_inicio) <= int(dia) <= int(reserva.dia_fim):      
                     print(f'O quarto {quarto} já está reservado (Reserva existente entre dias {reserva.dia_inicio} e {reserva.dia_fim}).')
                     existe_na_lista_de_reservas = True
-                    #break
                     return False
                 else:
                     print(f'(INFORMAÇÃO: o dia {dia} no quarto {quarto} está vago até o dia {self.verifica_disponibilidade_ate_quando(dia,reserva.dia_inicio,reserva.dia_fim)}.)')
                     existe_na_lista_de_reservas = True
-                    #break
                     return True
             # seria bom validar input do usuário para o quarto
         
@@ -225,7 +219,7 @@ class Pousada:
             press_enter()
             return
         
-    def cancela_reserva(self):
+    def cancela_reserva(self) -> None:
         nome_informado = input('Informe o nome do cliente para cancelar sua reserva:\n')
         for reserva in self.reservas:
             if (reserva.cliente == nome_informado):
@@ -238,7 +232,7 @@ class Pousada:
         print(f'Não há nenhum cliente com nome {nome_informado}. Voltando...')
         press_enter()
         
-    def realiza_check_in(self):
+    def realiza_check_in(self) -> None:
         nome_informado = input('Informe o nome do(a) cliente:\n')
         for reserva in self.reservas:
             if (reserva.cliente.lower() == nome_informado.lower()) and (reserva.status.lower() == 'a'):
@@ -248,33 +242,50 @@ class Pousada:
                 print(f'\tDia de entrada: {reserva.dia_inicio}')
                 print(f'\tDia de saída: {reserva.dia_fim}')
                 print(f'\tQuarto: {reserva.quarto.numero}')
-                print(f'\tNúmero de dias de hospedagem: {int(reserva.dia_fim) - int(reserva.dia_inicio)}')
-                print(f'\tValor das diárias a pagar: {(int(reserva.dia_fim) - int(reserva.dia_inicio)) * reserva.quarto.diaria}')
+                print(f'\tNúmero de dias de hospedagem: {int(reserva.dia_fim) - int(reserva.dia_inicio) + 1}')
+                print(f'\tValor das diárias a pagar: {(int(reserva.dia_fim) - int(reserva.dia_inicio) + 1) * reserva.quarto.diaria}')
                 press_enter()
                 return
+        
         print(f'Não há nenhum cliente com nome {nome_informado}. Voltando...')
         press_enter()
         
-    def realiza_check_out(self):
+    def realiza_check_out(self) -> None:
         nome_informado = input('Informe o nome do(a) cliente:\n')
         for reserva in self.reservas:
             if (reserva.cliente.lower() == nome_informado.lower()) and (reserva.status.lower() == 'i'):
-                reserva.status = 'O'
                 print(f'Cliente {nome_informado} faz check-out agora.')
                 print('INFORMAÇÃO:')
                 print(f'\tDia de entrada: {reserva.dia_inicio}')
                 print(f'\tDia de saída: {reserva.dia_fim}')
                 print(f'\tQuarto: {reserva.quarto.numero}')
-                print(f'\tNúmero de dias de hospedagem: {int(reserva.dia_fim) - int(reserva.dia_inicio)}')
+                print(f'\tNúmero de dias de hospedagem: {int(reserva.dia_fim) - int(reserva.dia_inicio) + 1}')
                 print(f'\tValor das diárias a pagar: R$ {(int(reserva.dia_fim) - int(reserva.dia_inicio) + 1) * reserva.quarto.diaria}')
+                
+                self.mostra_lista_de_produtos_consumidos(reserva)
+                
                 print(f'\tValor dos produtos consumidos: R$ {self.calcula_valor_produtos_consumidos(reserva)}')
                 print('---------------------------------')
-                print(f'\tValor total: {(int(reserva.dia_fim) - int(reserva.dia_inicio)) * reserva.quarto.diaria + self.calcula_valor_produtos_consumidos(reserva)}')
+                print(f'\tValor total: R$ {(int(reserva.dia_fim) - int(reserva.dia_inicio)) * reserva.quarto.diaria + self.calcula_valor_produtos_consumidos(reserva)}')
+                
+                reserva.status = 'O'        # status da reserva para check-out
+                reserva.quarto.consumo = [] # IMPORTANTE: limpar o consumo do quarto utilizado
+                
                 press_enter()
                 return
                 
         print(f'Não há nenhum cliente de nome {nome_informado} hospedado nesse momento. Voltando...')
         press_enter()
+        
+    def mostra_lista_de_produtos_consumidos(self, reserva_selecionada:Reserva) -> None:
+        for codigo_produto_consumido in reserva_selecionada.quarto.consumo:
+            for produto in self.produtos:
+                if str(codigo_produto_consumido) == str(produto.codigo):
+                    print(f'{codigo_produto_consumido}. {produto.nome}: R$ {produto.preco}')
+                    break
+                else:
+                    continue
+        return
         
     def calcula_valor_produtos_consumidos(self, reserva_selecionada:Reserva) -> float:
         # calcula o valor dos produtos consumidos
@@ -284,8 +295,7 @@ class Pousada:
                 if int(codigo_produto_consumido) == int(produto.codigo):
                     valor_produtos_consumidos += produto.preco
         return valor_produtos_consumidos
-            
-                
+    
     def registra_consumo(self):
         nome_informado = input('Informe o nome do(a) cliente:\n')
         for reserva in self.reservas:
@@ -311,4 +321,44 @@ class Pousada:
                 return
                 
         print(f'Não há nenhum cliente de nome {nome_informado} hospedado nesse momento. Voltando...')
+        press_enter()
+        
+    def serializar_lista_de_reservas(self) -> list:
+        lista_serializada: list = []
+        
+        for reserva in self.reservas:
+            lista_auxiliar: list = []
+            
+            lista_auxiliar.append(str(reserva.dia_inicio))
+            lista_auxiliar.append(str(reserva.dia_fim))
+            lista_auxiliar.append(str(reserva.cliente))
+            lista_auxiliar.append(str(reserva.quarto.numero))
+            lista_auxiliar.append(str(reserva.status))
+            
+            lista_serializada.append(lista_auxiliar)
+        return lista_serializada
+            
+    def serializar_lista_de_quartos(self) -> list:
+        lista_serializada: list = []
+        
+        for quarto in self.quartos:
+            lista_auxiliar: list = []
+            
+            lista_auxiliar.append(str(quarto.numero))
+            lista_auxiliar.append(str(quarto.categoria))
+            lista_auxiliar.append(str(quarto.diaria))
+            
+            # organiza os códigos dos produtos consumidos, que podem ser variados, inclusive lista vazia
+            if quarto.consumo == []:
+                lista_auxiliar.append('')
+            else:
+                for codigo_produto_consumido in quarto.consumo:
+                    lista_auxiliar.append(str(codigo_produto_consumido))
+            
+            lista_serializada.append(lista_auxiliar)
+        return lista_serializada
+        
+    def salvar_alteracoes(self):
+        print(self.serializar_lista_de_quartos())
+        print(self.serializar_lista_de_reservas())
         press_enter()
