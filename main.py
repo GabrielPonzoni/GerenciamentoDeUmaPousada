@@ -28,9 +28,11 @@ def serializar(pousada:Pousada) -> None:
         arquivo.write(primeira_linha)     # escreve cabeçalho
         
         lista_de_listas: list = pousada.serializar_lista_de_reservas()
-        for i in range(len(lista_de_listas) - 1):                              # índice não-inclusivo; sugestão do chatgpt: lista_de_linhas[:-1]
-            arquivo.write(','.join(lista_de_listas[i]) + '\n')                 # escreve cada linhas com \n ao final, exceto a última
-        arquivo.write(','.join(lista_de_listas[len(lista_de_listas) - 1]))     # escreve a última linha sem \n; índice inclusivo; sugestão do chatgpt: lista_de_linhas[-1]
+        for i in range(len(lista_de_listas) - 1):                                            # índice não-inclusivo; sugestão do chatgpt: lista_de_linhas[:-1]
+            #if lista_de_listas[i][4].lower() == 'a' or lista_de_listas[i][4].lower() == 'i':
+            arquivo.write(','.join(lista_de_listas[i]) + '\n')                           # escreve cada linhas com \n ao final, exceto a última
+        #if lista_de_listas[-1][4].lower() == 'a' or lista_de_listas[-1][4].lower() == 'i':
+        arquivo.write(','.join(lista_de_listas[len(lista_de_listas) - 1]))                   # escreve a última linha sem \n; índice inclusivo; sugestão do chatgpt: lista_de_linhas[-1]
         
     # lista de quartos:
     with open('quarto.txt', 'r', encoding='utf-8') as arquivo:
