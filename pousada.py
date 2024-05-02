@@ -363,12 +363,10 @@ class Pousada:
             if (reserva.status.lower() == 'c') or (reserva.status.lower() == 'o'):
                 reservas_a_deletar.append(self.reservas.index(reserva))
                 
-        reservas_a_deletar.reverse()
         
+        reservas_a_deletar.reverse()
         # limpa reservas do índice maior para o índice menor; isto é necessário pois
         # vai haver mudança de índice durante o laço. começando do índice maior, isso é contornado;
         
         for index in reservas_a_deletar:
-            print(index)
             self.reservas.pop(index)
-        print(self.reservas)

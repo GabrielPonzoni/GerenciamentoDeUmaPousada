@@ -135,6 +135,7 @@ def main():
             case '9':
                 clear_screen()
                 print('Salvando alterações...')
+                minha_pousada.limpar_reservas_c_o()
                 serializar(minha_pousada)
                 print('Até logo!')
                 return True
